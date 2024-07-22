@@ -1,0 +1,54 @@
+scheme: http
+keycloak-port: 8080
+
+server:
+  error:
+    include-message: always
+  port: 7070
+  ssl:
+    enabled: false
+
+spring:
+  application:
+    name: multi-tenent
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+com:
+  c4-soft:
+    springaddons:
+      oidc:
+        ops:
+          - iss: http://localhost:8080
+            username-claim: preferred_username
+            authorities:
+              - path: $.realm_access.roles
+              - path: $.resource_access.*.roles
+        resourceserver:
+          permit-all:
+            - "/actuator/health/readiness"
+            - "/actuator/health/liveness"
+            - "/v3/api-docs/**"
+            - "/swagger-ui/**"
+
+logging:
+  level:
+    org:
+      springframework:
+        boot: TRACE
+        security: TRACE
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
